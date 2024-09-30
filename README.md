@@ -12,7 +12,7 @@ This script will query up to all accounts/regions and retrieve guardduty coverag
 
 ## IAM Role
 
-Each Member account must have an IAM role that can be assumed the account this script is run from.
+Each Member account must have an IAM role that can be assumed from the account this script is run from.
 The role in each member account should look like this:
 
 ### Trust Policy
