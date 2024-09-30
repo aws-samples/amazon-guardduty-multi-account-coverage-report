@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Configure the AWSCloudFormationStackSetExecutionRole to enable use of your account as a target account in AWS CloudFormation StackSets.
+
+Parameters:
+  AdministratorAccountId:
+    Type: String
+    Description: AWS Account Id of the administrator account (the account in which this roll will be created).
+    MaxLength: 12
+    MinLength: 12
+  ExecutionRoleName:
+    Type: String
+    Default: GuardDutyCoverageRole
+    Description: "The name of the execution role. Defaults to 'GuardDutyCoverageRole'."
+
+Resources:
+  ExecutionRole:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W11
+            reason: "Wildcard permissions required for use case"
+          - id: W28
+            reason: "Role must have the same name in all deployed accounts"
+      cdk_nag:
+        rules_to_suppress:
+          - id: AwsSolutions-IAM5
+            reason: "Wildcard permissions required for use case"
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName:
+        Ref: ExecutionRoleName
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS:
+                - Ref: AdministratorAccountId
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "guardduty:ListDetectors"
+                  - "guardduty:ListCoverage"
+                Resource: '*'
